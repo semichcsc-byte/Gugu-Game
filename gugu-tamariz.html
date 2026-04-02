@@ -773,11 +773,30 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') jumpPressed = false;
 });
-canvas.addEventListener('pointerdown', () => {
+
+function onTap(e) {
+  e.preventDefault();
   if (state === STATE.NAME_INPUT) return;
   jumpPressed = true; handleInput();
-});
-canvas.addEventListener('pointerup', () => { jumpPressed = false; });
+}
+function onRelease(e) {
+  e.preventDefault();
+  jumpPressed = false;
+}
+canvas.addEventListener('pointerdown', onTap);
+canvas.addEventListener('pointerup', onRelease);
+canvas.addEventListener('touchstart', onTap, { passive: false });
+canvas.addEventListener('touchend', onRelease, { passive: false });
+// Also listen on document body for mobile (canvas might be small)
+document.body.addEventListener('touchstart', (e) => {
+  if (e.target === nameInput || e.target === nameBtn) return;
+  if (state === STATE.NAME_INPUT) return;
+  e.preventDefault();
+  jumpPressed = true; handleInput();
+}, { passive: false });
+document.body.addEventListener('touchend', (e) => {
+  jumpPressed = false;
+}, { passive: false });
 
 function handleInput() {
   if (state === STATE.MENU) { showNameInput(); return; }
