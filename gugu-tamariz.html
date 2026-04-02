@@ -2763,13 +2763,11 @@ function gameLoop(timestamp) {
 
   ctx.restore();
 
-  // Mobile debug overlay - always on top, always visible
-  if (isMobile) {
-    ctx.fillStyle = 'rgba(255,0,0,0.8)';
-    ctx.font = 'bold 14px sans-serif';
-    const as = audioCtx ? audioCtx.state : 'NO_CTX';
-    ctx.fillText(`SOM:${as} S:${state} W:${canvas.width}x${canvas.height}`, 5, canvas.height - 5);
-  }
+  // Version + debug - always visible at bottom
+  ctx.fillStyle = 'rgba(255,0,0,0.8)';
+  ctx.font = 'bold 12px sans-serif';
+  const as = audioCtx ? audioCtx.state : 'NO_CTX';
+  ctx.fillText(`v1001 SOM:${as} S:${state} ${canvas.width}x${canvas.height}`, 5, canvas.height - 5);
 
   requestAnimationFrame(gameLoop);
 }
