@@ -163,26 +163,26 @@ muteBtn.addEventListener('click', (e) => {
 });
 
 function initAudio() {
-  if (audioCtx) {
-    // Mobile browsers suspend AudioContext - resume on user gesture
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    return;
-  }
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  masterGain = audioCtx.createGain();
-  masterGain.gain.value = muted ? 0 : 0.4;
-  masterGain.connect(audioCtx.destination);
-  // Resume immediately if suspended
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = muted ? 0 : 0.4;
+      masterGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {}
 }
 
 // Resume audio on any touch/click (mobile requirement)
-document.addEventListener('touchstart', () => {
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}, { once: false });
-document.addEventListener('click', () => {
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-}, { once: false });
+function resumeAudio() {
+  initAudio();
+}
+document.addEventListener('touchstart', resumeAudio, { once: false });
+document.addEventListener('touchend', resumeAudio, { once: false });
+document.addEventListener('click', resumeAudio, { once: false });
 
 function playJumpSfx() {
   if (!audioCtx || muted) return;
@@ -670,7 +670,7 @@ let winTimer = 0;
 // ── Friends shouting ──
 const SHOUTS = [
   'CORRE GUGU!!', 'FOGE!!', 'CUIDADO!!', 'MAIS RÁPIDO!!',
-  'AI AI AI!!', 'A ONDA!!', 'TÁS BEBO!!', 'SALTA!!',
+  'AI AI AI!!', 'A ONDA!!', 'TÁS BÊBEDO!!', 'SALTA!!',
   'AHAHAHA!!', 'VAI VAI VAI!!', 'Ó GUGU!!', 'ESTÁS FEITO!!',
   'É AGORA!!', 'NÃO PARES!!'
 ];
@@ -1228,6 +1228,15 @@ function update() {
 
 // ── Draw Helpers ──
 function drawSky() {
+  if (isMobile) {
+    // Simple solid sky on mobile
+    ctx.fillStyle = '#0a1525';
+    ctx.fillRect(0, 0, canvas.width, PIER_TOP());
+    // Just the moon, no glow
+    ctx.fillStyle = '#f0f0dc';
+    ctx.beginPath(); ctx.arc(canvas.width * 0.8, PIER_TOP() * 0.22, 14, 0, Math.PI * 2); ctx.fill();
+    return;
+  }
   // Night sky
   const grad = ctx.createLinearGradient(0, 0, 0, PIER_TOP());
   grad.addColorStop(0, '#05080f');
@@ -1267,6 +1276,11 @@ function drawSky() {
 
 function drawOcean() {
   const top = PIER_TOP();
+  if (isMobile) {
+    ctx.fillStyle = '#0a2040';
+    ctx.fillRect(0, top, canvas.width, canvas.height - top);
+    return;
+  }
   const grad = ctx.createLinearGradient(0, top, 0, canvas.height);
   grad.addColorStop(0, '#0a2040');
   grad.addColorStop(1, '#050e1a');
@@ -1447,6 +1461,30 @@ function drawWave() {
   const front = wave.x; // front edge of the wave
   const h = canvas.height;
   const t = frameCount * 0.04;
+
+  if (isMobile) {
+    // Simple wave for mobile - solid fills only
+    ctx.fillStyle = '#0d5d8a';
+    ctx.fillRect(-10, top - 20, front + 10, h - top + 30);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.beginPath();
+    ctx.moveTo(front, h);
+    ctx.lineTo(front, top - 15);
+    ctx.lineTo(front - 25, top - 55);
+    ctx.lineTo(front - 55, top - 15);
+    ctx.lineTo(-10, top - 5);
+    ctx.lineTo(-10, h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(front, top - 15);
+    ctx.lineTo(front - 25, top - 55);
+    ctx.lineTo(front - 55, top - 15);
+    ctx.stroke();
+    return;
+  }
 
   // Water body behind the wave (fills left side)
   ctx.save();
@@ -1690,6 +1728,7 @@ function drawSplash() {
 }
 
 function drawPoopsAndFarts() {
+  if (isMobile) return; // skip on mobile for performance
   // Draw poops on the pier
   for (const p of poops) {
     const alpha = Math.min(1, p.life / 60);
@@ -2472,6 +2511,7 @@ const clouds = Array.from({ length: 6 }, () => ({
 }));
 
 function drawClouds() {
+  if (isMobile) return; // skip on mobile
   // Thin clouds at night
   ctx.fillStyle = 'rgba(150,160,200,0.06)';
   for (const c of clouds) {
@@ -2488,6 +2528,7 @@ function drawClouds() {
 
 // ── Distant buildings (Estoril skyline at night) ──
 function drawSkyline() {
+  if (isMobile) return; // skip on mobile
   ctx.fillStyle = 'rgba(10,10,25,0.6)';
   const base = PIER_TOP() - 10;
   const buildings = [
