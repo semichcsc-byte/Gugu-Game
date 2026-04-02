@@ -1738,7 +1738,7 @@ function drawHUD() {
   // Lives
   ctx.font = '13px sans-serif';
   ctx.fillStyle = '#fff';
-  ctx.fillText(`❤️`.repeat(lives) + `🖤`.repeat(Math.max(0, 12 - lives)), 20, 50);
+  ctx.fillText(`❤️ x${lives}`, 20, 50);
   ctx.font = '12px sans-serif';
   ctx.fillText(`🐟 ${sardinesCollected}  🍺 ${bottlesCollected}  🏆 ${highScore}pts`, 20, 68);
   // Level name
@@ -2762,7 +2762,7 @@ function gameLoop(timestamp) {
   ctx.fillStyle = 'rgba(255,0,0,0.8)';
   ctx.font = 'bold 12px sans-serif';
   const as = audioCtx ? audioCtx.state : 'NO_CTX';
-  ctx.fillText(`v1008 SOM:${as} S:${state} ${canvas.width}x${canvas.height}`, 5, canvas.height - 5);
+  ctx.fillText(`v1009 SOM:${as} S:${state} ${canvas.width}x${canvas.height}`, 5, canvas.height - 5);
 
   requestAnimationFrame(gameLoop);
 }
