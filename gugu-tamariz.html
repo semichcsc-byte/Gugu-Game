@@ -888,6 +888,8 @@ function update() {
   if (state === STATE.INTRO) {
     introTimer++;
     frameCount++;
+    // Keep Gugu on the pier during intro
+    gugu.y = PIER_TOP() - gugu.h;
     // Wave approaches during intro - visible from start
     if (introTimer === 1) wave.x = -50;
     wave.x += 0.08;
