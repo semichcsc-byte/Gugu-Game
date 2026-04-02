@@ -1838,6 +1838,13 @@ function drawHUD() {
       ctx.fillText(`${medal} ${e.name.substring(0,8)} ${e.score}`, sbX + 5, sbY + 28 + i * 14);
     }
   }
+  // Audio debug on mobile
+  if (isMobile) {
+    ctx.fillStyle = '#f44';
+    ctx.font = 'bold 10px sans-serif';
+    const as = audioCtx ? audioCtx.state : 'NO_CTX';
+    ctx.fillText(`SOM:${as}`, sbX, sbY + sbH + 12);
+  }
 }
 
 function drawMenu() {
