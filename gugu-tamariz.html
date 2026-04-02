@@ -738,23 +738,28 @@ const nameOverlay = document.getElementById('nameOverlay');
 const nameInput = document.getElementById('nameInput');
 const nameBtn = document.getElementById('nameBtn');
 
-function showNameInput() {
-  state = STATE.NAME_INPUT;
-  nameOverlay.style.display = 'block';
-  nameInput.value = playerName;
-  nameInput.focus();
-}
-
 function confirmName() {
   playerName = nameInput.value.trim().slice(0, 12) || 'Gugu';
   nameOverlay.style.display = 'none';
+  nameOverlay.style.visibility = 'hidden';
+  nameOverlay.style.pointerEvents = 'none';
   startGame();
 }
 
-nameBtn.addEventListener('click', (e) => { e.stopPropagation(); confirmName(); });
+function showNameInput() {
+  state = STATE.NAME_INPUT;
+  nameOverlay.style.display = 'block';
+  nameOverlay.style.visibility = 'visible';
+  nameOverlay.style.pointerEvents = 'auto';
+  nameInput.value = playerName;
+  setTimeout(() => nameInput.focus(), 100);
+}
+
+nameBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); confirmName(); });
+nameBtn.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); confirmName(); });
 nameInput.addEventListener('keydown', (e) => {
   e.stopPropagation();
-  if (e.key === 'Enter') confirmName();
+  if (e.key === 'Enter') { e.preventDefault(); confirmName(); }
 });
 
 document.addEventListener('keydown', e => {
