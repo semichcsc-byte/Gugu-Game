@@ -741,16 +741,20 @@ const nameBtn = document.getElementById('nameBtn');
 function confirmName() {
   playerName = nameInput.value.trim().slice(0, 12) || 'Gugu';
   nameOverlay.style.display = 'none';
-  nameOverlay.style.visibility = 'hidden';
-  nameOverlay.style.pointerEvents = 'none';
   startGame();
 }
 
 function showNameInput() {
+  // On mobile, use simple prompt instead of overlay (more reliable)
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    const name = prompt('Como te chamas?', playerName || 'Gugu');
+    playerName = (name || 'Gugu').trim().slice(0, 12);
+    startGame();
+    return;
+  }
   state = STATE.NAME_INPUT;
   nameOverlay.style.display = 'block';
-  nameOverlay.style.visibility = 'visible';
-  nameOverlay.style.pointerEvents = 'auto';
   nameInput.value = playerName;
   setTimeout(() => nameInput.focus(), 100);
 }
