@@ -2796,22 +2796,9 @@ function drawShouts() {
 }
 
 // ── Main Loop ──
-let mobileFrameSkip = 0;
-
 function gameLoop(timestamp) {
-  // On mobile, only update+draw every other frame for performance
-  if (isMobile) {
-    mobileFrameSkip++;
-    if (mobileFrameSkip % 2 !== 0) {
-      requestAnimationFrame(gameLoop);
-      return;
-    }
-    update();
-    if (shakeTimer > 0) shakeTimer--;
-  } else {
-    update();
-    if (shakeTimer > 0) shakeTimer--;
-  }
+  update();
+  if (shakeTimer > 0) shakeTimer--;
 
   // Draw once per frame
   ctx.save();
