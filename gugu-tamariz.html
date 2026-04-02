@@ -2638,15 +2638,28 @@ function drawShouts() {
 }
 
 // ── Main Loop ──
-function gameLoop() {
-  // Screen shake
-  ctx.save();
-  if (shakeTimer > 0) {
-    shakeTimer--;
-    ctx.translate(Math.random() * 6 - 3, Math.random() * 6 - 3);
+let lastTime = 0;
+let accumulator = 0;
+const TICK_RATE = 1000 / 60; // target 60 ticks per second
+
+function gameLoop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const delta = Math.min(timestamp - lastTime, 100); // cap at 100ms to avoid spiral
+  lastTime = timestamp;
+  accumulator += delta;
+
+  // Run multiple update ticks if frame rate is low (keeps game speed consistent)
+  while (accumulator >= TICK_RATE) {
+    update();
+    if (shakeTimer > 0) shakeTimer--;
+    accumulator -= TICK_RATE;
   }
 
-  update();
+  // Draw once per frame
+  ctx.save();
+  if (shakeTimer > 0) {
+    ctx.translate(Math.random() * 6 - 3, Math.random() * 6 - 3);
+  }
 
   // Draw
   drawSky();
