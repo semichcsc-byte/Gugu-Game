@@ -689,9 +689,9 @@ let shoutFriendIdx = 0;
 
 // Level configs: distance goal, wave speed multiplier, obstacle speed multiplier, name
 const LEVELS = [
-  { goal: 80, waveSpeed: 0.15, obstSpeed: 1.4, name: 'Nível 1 — Fuga no Pontão' },
-  { goal: 150, waveSpeed: 0.20, obstSpeed: 1.7, name: 'Nível 2 — A Onda Cresce!' },
-  { goal: 250, waveSpeed: 0.25, obstSpeed: 2.0, name: 'Nível 3 — Corre para a Ambulância!' },
+  { goal: 80, waveSpeed: 0.45, obstSpeed: 4.2, name: 'Nível 1 — Fuga no Pontão' },
+  { goal: 150, waveSpeed: 0.60, obstSpeed: 5.1, name: 'Nível 2 — A Onda Cresce!' },
+  { goal: 250, waveSpeed: 0.75, obstSpeed: 6.0, name: 'Nível 3 — Corre para a Ambulância!' },
 ];
 
 // ── Pier / Ground ──
@@ -1019,9 +1019,9 @@ function update() {
   if (state !== STATE.PLAYING) return;
   frameCount++;
   const lvlConf = LEVELS[level - 1];
-  difficulty = 1 + frameCount / 9000;
+  difficulty = 1 + frameCount / 3000;
   if (invincibleTimer > 0) invincibleTimer--;
-  score = Math.floor(frameCount / 20);
+  score = Math.floor(frameCount / 7);
 
   // Check level goal
   if (score >= LEVELS[level - 1].goal) {
@@ -1040,7 +1040,7 @@ function update() {
   }
 
   // Gugu physics
-  gugu.vy += 0.45;
+  gugu.vy += 0.28;
   gugu.y += gugu.vy;
   // Clamp to screen top
   if (gugu.y < 0) { gugu.y = 0; if (gugu.vy < 0) gugu.vy = 0; }
@@ -1055,8 +1055,8 @@ function update() {
   if (gugu.animTimer > 6) { gugu.animTimer = 0; gugu.frame = (gugu.frame + 1) % 4; }
 
   // Wave
-  wave.speed = lvlConf.waveSpeed + (difficulty - 1) * 0.12;
-  wave.x += wave.speed * 0.45;
+  wave.speed = lvlConf.waveSpeed + (difficulty - 1) * 0.36;
+  wave.x += wave.speed * 1.35;
   // Level 1: wave can't reach Gugu, it stays behind
   if (level === 1 && wave.x > gugu.x - 60) {
     wave.x = gugu.x - 60;
@@ -1118,10 +1118,10 @@ function update() {
       y: isFlying ? PIER_TOP() - 70 - Math.random() * 30 : isHole ? PIER_TOP() - 6 : PIER_TOP() - t.h,
       ...t, flying: isFlying
     });
-    obstacleTimer = Math.max(60, 140 - difficulty * 10) + Math.random() * 80;
+    obstacleTimer = Math.max(20, 47 - difficulty * 10) + Math.random() * 27;
   }
   for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].x -= lvlConf.obstSpeed * difficulty * 1.5;
+    obstacles[i].x -= lvlConf.obstSpeed * difficulty * 4.5;
     if (obstacles[i].x < -50) { obstacles.splice(i, 1); continue; }
     // collision
     const o = obstacles[i];
@@ -1161,7 +1161,7 @@ function update() {
     sardineTimer = 100 + Math.random() * 120;
   }
   for (let i = sardines.length - 1; i >= 0; i--) {
-    sardines[i].x -= 1.2 * difficulty;
+    sardines[i].x -= 3.6 * difficulty;
     if (sardines[i].x < -30) { sardines.splice(i, 1); continue; }
     const s = sardines[i];
     if (!s.collected && gugu.x + gugu.w > s.x && gugu.x < s.x + s.w &&
@@ -1183,7 +1183,7 @@ function update() {
     bottleTimer = 140 + Math.random() * 160;
   }
   for (let i = bottles.length - 1; i >= 0; i--) {
-    bottles[i].x -= 1.2 * difficulty;
+    bottles[i].x -= 3.6 * difficulty;
     if (bottles[i].x < -30) { bottles.splice(i, 1); continue; }
     const b = bottles[i];
     if (!b.collected && gugu.x + gugu.w > b.x && gugu.x < b.x + b.w &&
@@ -2721,8 +2721,19 @@ function drawShouts() {
 }
 
 // ── Main Loop ──
+let lastFrameTime = 0;
+
 function gameLoop(timestamp) {
-  update();
+  if (!timestamp) timestamp = performance.now();
+  if (!lastFrameTime) lastFrameTime = timestamp;
+  const dt = timestamp - lastFrameTime;
+  lastFrameTime = timestamp;
+  
+  // Run extra updates if frame took too long (keeps speed consistent)
+  const ticksNeeded = Math.min(Math.round(dt / 16.67), 5);
+  for (let i = 0; i < Math.max(1, ticksNeeded); i++) {
+    update();
+  }
   if (shakeTimer > 0) shakeTimer--;
 
   // Draw once per frame
