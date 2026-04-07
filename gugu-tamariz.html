@@ -1789,15 +1789,15 @@ function drawMenu() {
   ctx.fillStyle = '#ffca28';
   ctx.font = 'bold 20px sans-serif';
   ctx.fillText('▶ Clica para jogar!', canvas.width / 2, canvas.height / 2 + 40);
-  if (!isMobile) {
-    ctx.fillStyle = '#f4a828';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('📱 Recomendado jogar no telemóvel (no PC pode ficar rápido demais)', canvas.width / 2, canvas.height / 2 + 55);
-  }
   if (highScore > 0) {
     ctx.fillStyle = '#aaa';
     ctx.font = '12px sans-serif';
-    ctx.fillText(`Recorde: ${highScore}pts`, canvas.width / 2, canvas.height / 2 + 62);
+    ctx.fillText(`Recorde: ${highScore}pts`, canvas.width / 2, canvas.height / 2 + 55);
+  }
+  if (!isMobile) {
+    ctx.fillStyle = '#f4a828';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('📱 Recomendado jogar no telemóvel (no PC pode ficar rápido demais)', canvas.width / 2, canvas.height / 2 + 72);
   }
   // Leaderboard
   drawLeaderboard();
