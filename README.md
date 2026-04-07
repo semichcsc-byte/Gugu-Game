@@ -1,4 +1,4 @@
-# � Gugu Foge da Onda
+# 🌊 Gugu Foge da Onda
 
 **[▶ Jogar](https://semichcsc-byte.github.io/Gugu-Game/gugu-tamariz.html)**
 
